@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, LogOutIcon, Mic, Paperclip, Plus, Minus, ChevronDown } from "lucide-react";
+import { Calendar, LogOutIcon, Mic, Paperclip, Plus, Minus, ChevronDown, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter, DialogClose } from "@/components/ui/dialog";
@@ -22,6 +22,8 @@ export default function TimeEntryForm() {
   ]);
   const [allocateDialogOpen, setAllocateDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
 
   const incrementHours = () => {
@@ -76,6 +78,21 @@ export default function TimeEntryForm() {
     } else {
       setErrorMessage("Please select at least one person from the list.");
     }
+  };
+
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      setSelectedFiles(Array.from(files));
+    }
+  };
+
+  const handlePaperclipClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
   };
 
   return (
@@ -377,13 +394,45 @@ export default function TimeEntryForm() {
             <h2 className="text-lg font-semibold">Note</h2>
             <Textarea placeholder="Type your message here..." className="min-h-24" />
             <div className="flex space-x-2">
-              <Button variant="ghost" size="icon">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                onChange={handleFileSelection} 
+                multiple
+              />
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handlePaperclipClick}
+              >
                 <Paperclip />
               </Button>
               <Button variant="ghost" size="icon">
                 <Mic />
               </Button>
             </div>
+            
+            {selectedFiles.length > 0 && (
+              <div className="mt-2">
+                <h3 className="text-sm font-medium mb-1">Attached files</h3>
+                <ul className="space-y-1">
+                  {selectedFiles.map((file, index) => (
+                    <li key={index} className="flex items-center justify-between py-1 px-2 bg-muted rounded-md text-sm">
+                      <span className="truncate max-w-[250px]">{file.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6" 
+                        onClick={() => removeFile(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Contact Section */}
