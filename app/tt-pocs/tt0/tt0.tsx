@@ -9,8 +9,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-export default function TimeEntryForm() {
+
+export function meta() {
+  return [
+    { title: "Time Tracker Proof of Concept v0" },
+    { name: "description", content: "Time Tracker Proof of Concept" },
+  ];
+}
+
+export default function TT0() {
   const [date, setDate] = useState("04/07/2025");
   const [time, setTime] = useState("3:00 PM");
   const [hours, setHours] = useState(1);
@@ -25,6 +39,12 @@ export default function TimeEntryForm() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Available routes for the Versions dropdown
+  const routes = [
+    { name: "TT2", path: "/" },
+    { name: "TT1", path: "/tt1" },
+    { name: "TT0", path: "/tt0" },
+  ];
 
   const incrementHours = () => {
     setHours(hours + 1);
@@ -95,6 +115,10 @@ export default function TimeEntryForm() {
     setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
   };
 
+  const handleNavigation = (path: string) => {
+    window.location.href = path;
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
@@ -102,12 +126,34 @@ export default function TimeEntryForm() {
         <div className="flex items-center">
           <div className="flex items-center">
             <img src="/mn-state-icon.svg" alt="Minnesota State Icon" width="24" height="24" className="mr-2" />
-            <span className="text-primary-foreground text-xl font-semibold mt-0.5">SSIS</span>
+            <span className="text-primary-foreground text-xl font-semibold mt-0.5">SSIS v0</span>
           </div>
         </div>
-        <button className="text-primary-foreground">
+        <div className="flex items-center space-x-4">
+          {/* Versions Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-primary-foreground flex items-center gap-1 px-3 py-2">
+                <span>Versions</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {routes.map((route) => (
+                <DropdownMenuItem 
+                  key={route.path} 
+                  onClick={() => handleNavigation(route.path)}
+                >
+                  {route.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <button className="text-primary-foreground">
             <LogOutIcon />
-        </button>
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
